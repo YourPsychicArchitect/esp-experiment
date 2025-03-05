@@ -5,7 +5,7 @@ import { Button } from './components/ui/button';
 import { Input } from './components/ui/input';
 
 const ESPExperiment = () => {
-  const [targetNumber, setTargetNumber] = useState(0);
+  const [targetLetter, setTargetLetter] = useState('');
   const [guess, setGuess] = useState('');
   const [trials, setTrials] = useState(0);
   const [successes, setSuccesses] = useState(0);
@@ -20,14 +20,16 @@ const ESPExperiment = () => {
   }, []);
 
   const generateNewTarget = () => {
-    setTargetNumber(Math.floor(Math.random() * 10) + 1);
+    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const randomIndex = Math.floor(Math.random() * alphabet.length);
+    setTargetLetter(alphabet[randomIndex]);
   };
 
   const handleGuess = () => {
     if (guess === '') return; // Prevent submission if input is empty
 
-    const guessNumber = parseInt(guess, 10);
-    if (guessNumber === targetNumber) {
+    const guessLetter = guess.toUpperCase();
+    if (guessLetter === targetLetter) {
       setSuccesses(successes + 1);
       setOverallSuccesses(overallSuccesses + 1);
       setShowImage(true);
@@ -37,7 +39,7 @@ const ESPExperiment = () => {
         setFeedback('');
       }, 2000);
     } else {
-      setFeedback(`Incorrect. The correct number was ${targetNumber}.`);
+      setFeedback(`Incorrect. The correct letter was ${targetLetter}.`);
       setTimeout(() => setFeedback(''), 4000);
     }
     setTrials(trials + 1);
@@ -57,8 +59,8 @@ const ESPExperiment = () => {
   };
 
   const calculatePValue = (observedSuccesses, totalTrials) => {
-    const expectedSuccesses = totalTrials * (1/10);
-    const variance = totalTrials * (1/10) * (9/10);
+    const expectedSuccesses = totalTrials * (1 / 26);
+    const variance = totalTrials * (1 / 26) * (25 / 26);
     const zScore = (observedSuccesses - expectedSuccesses) / Math.sqrt(variance);
     const pValue = 1 - normalCDF(zScore);
     return pValue;
@@ -106,16 +108,16 @@ const ESPExperiment = () => {
       <h1 className="text-2xl font-bold mb-4">ESP Experiment</h1>
       {!gameOver ? (
         <>
-          <p className="mb-2">Guess a number between 1 and 10:</p>
+          <p className="mb-2">Guess an English letter (A-Z):</p>
           <div className="flex mb-4">
             <Input
-              type="number"
-              min="1"
-              max="10"
+              type="text"
               value={guess}
               onChange={(e) => setGuess(e.target.value)}
               onKeyPress={handleKeyPress}
+              placeholder="Enter a letter"
               className="mr-2"
+              maxLength={1}
             />
             <Button onClick={handleGuess} disabled={guess === ''}>Guess</Button>
           </div>
